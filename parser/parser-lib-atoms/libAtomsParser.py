@@ -66,18 +66,20 @@ def parse(output_file_name):
     jbe.startedParsingSession(output_file_name, parser_info)
 
     base_dir = os.path.dirname(os.path.abspath(output_file_name))
-    terminal = LibAtomsParser(osio)
-    terminal_trj = LibAtomsTrajectory(osio)
-    terminal_trj.ParseOutput(output_file_name)
-    out = terminal
+    terminal_gap = LibAtomsGapParser(osio)
+    terminal_gap.ParseOutput(output_file_name)
+    terminal_trj = terminal_gap.trj
+
+
+    osio << "Start parsing ..." << osio.endl
+    osio << "Base directory = '%s'" % base_dir << osio.endl
+
+    gap = terminal_gap
     trj = terminal_trj
-   
-    log("Start parsing ...")
-    log("Base directory = '%s'" % base_dir)
 
     with open_section(jbe, 'section_run') as gid_run:
-        push(jbe, trj, 'program_name')
-        push(jbe, trj, 'program_version')
+        push(jbe, gap, 'program_name')
+        push(jbe, gap, 'program_version', key2='GAP_params.svn_version')
 
     jbe.finishedParsingSession("ParseSuccess", None)
     return

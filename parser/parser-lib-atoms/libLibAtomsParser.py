@@ -8,6 +8,7 @@ import os
 import sys
 import re
 import numpy as np
+import xml.dom.minidom
 
 try:
     import ase
@@ -16,6 +17,36 @@ try:
 except ImportError:
     HAVE_ASE = False
     pass
+
+def XmlGetUnique(root, tag):
+    nodes = XmlGetAll(root, tag)
+    if len(nodes) > 1:
+        raise ValueError("More than one node with tag '%s'" % tag)
+    return nodes[0]
+
+def XmlGetAll(root, tag):
+    nodes = root.getElementsByTagName(tag)
+    ret_nodes = []
+    for node in nodes:
+        if node.localName != None: ret_nodes.append(node)
+    return ret_nodes
+
+def XmlGetChildDict(root):
+    tag_child = {}
+    for child in root.childNodes:
+        if child.localName == None: continue
+        if not child.localName in tag_child:
+            tag_child[child.localName] = []
+        tag_child[child.localName].append(child)
+    return tag_child
+
+def XmlGetAttributes(root):
+    return root.attributes
+
+def XmlGetText(root):
+    return root.firstChild.nodeValue
+
+
 
 class LibAtomsParser(object):
     def __init__(self, log=None):
@@ -33,7 +64,7 @@ class LibAtomsParser(object):
         return self
     def As(self, typ=None):
         if typ == None:
-            typ = type(self.selected_data_item)
+            return self.selected_data_item
         return typ(self.selected_data_item)
     def SummarizeKeyDefaults(self):
         if not self.log: return
@@ -140,15 +171,125 @@ class LibAtomsParser(object):
         self.Set('program_version', 'n/a')
         return
 
+class LibAtomsGapParser(LibAtomsParser):
+    def __init__(self, log=None):
+        super(LibAtomsGapParser, self).__init__(log)
+        self.logtag = 'gap-xml'
+        self.trj = None
+        return
+    def ParseOutput(self, output_file):
+        self.Set('program_name', 'libAtoms')
+        dom = xml.dom.minidom.parse(output_file)
+        root = XmlGetUnique(dom, 'GAP_params')
+        # Child keys should be: ['gpSparse', 'command_line', 'GAP_data', 'XYZ_data']
+        #print(list(child_nodes.keys()))
+        child_nodes = XmlGetChildDict(root)
+
+        # 'GAP_params'
+        atts = XmlGetAttributes(root)
+        keys = ['label', 'svn_version']
+        for key in keys:
+            self.Set('GAP_params.%s' % key, atts[key].value) # TODO Handle look-up errors
+
+        # 'GAP_params/GAP_data'
+        key = 'GAP_data'
+        if key in child_nodes:
+            node = child_nodes[key][0]
+            atts = XmlGetAttributes(node)
+            keys = ['do_core', 'e0']
+            for key in keys:
+                self.Set('GAP_data.%s' % key, atts[key].value) # TODO Handle look-up errors
+
+        # 'GAP_params/command_line'
+        key = 'command_line'
+        if key in child_nodes:
+            node = child_nodes[key][0]
+            text = XmlGetText(node)
+            self.Set('command_line.command_line', text)
+
+        # 'GAP_params/gpSparse'
+        key = 'gpSparse'
+        if key in child_nodes:
+            node = child_nodes[key][0]
+            atts = XmlGetAttributes(node)
+            keys = ['n_coordinate']
+            for key in keys:
+                self.Set('gpSparse.%s' % key, atts[key].value) # TODO Handle look-up errors
+
+            # GAP_params/gpSparse/gpCoordinates
+            gp_coord_node = XmlGetUnique(node, 'gpCoordinates')
+            gp_coord_child_nodes = XmlGetChildDict(gp_coord_node)
+            gp_coord_node_att = XmlGetAttributes(gp_coord_node)
+            for key in gp_coord_node_att.keys():
+                self.Set('gpCoordinates.%s' % key, gp_coord_node_att[key].value)
+            
+            # 'GAP_params/gpSparse/gpCoordinates/theta
+            key = 'theta'
+            if key in gp_coord_child_nodes:
+                node = gp_coord_child_nodes[key][0]
+                text = XmlGetText(node).strip()
+                self.Set('gpCoordinates.%s' % key, text)
+            # 'GAP_params/gpSparse/gpCoordinates/descriptor
+            key = 'descriptor'
+            if key in gp_coord_child_nodes:
+                node = gp_coord_child_nodes[key][0]
+                text = XmlGetText(node).strip()
+                self.Set('gpCoordinates.%s' % key, text)
+            # 'GAP_params/gpSparse/gpCoordinates/descriptor
+            key = 'permutation'
+            if key in gp_coord_child_nodes:
+                node = gp_coord_child_nodes[key][0]
+                att = XmlGetAttributes(node)
+                text = XmlGetText(node).strip()
+                self.Set('gpCoordinates.perm.%s' % key, text)
+                self.Set('gpCoordinates.perm.i', att['i'].value)
+            # 'GAP_params/gpSparse/gpCoordinates/sparseX
+            key = 'sparseX'
+            if key in gp_coord_child_nodes:
+                n_sparseX = self['gpCoordinates.n_sparseX'].As(int)
+                n_dim = self['gpCoordinates.dimensions'].As(int)
+                sparseX_filename = self['gpCoordinates.sparseX_filename'].As(str)
+                # Read alpha coefficients
+                nodes = gp_coord_child_nodes[key]
+                alpha_cutoff = np.zeros((n_sparseX, 2), dtype='float64')
+                for i,node in enumerate(nodes):
+                    att = XmlGetAttributes(node)
+                    alpha_cutoff[i,0] = float(att["alpha"].value)
+                    alpha_cutoff[i,1] = float(att["sparseCutoff"].value)
+                self.Set('gpCoordinates.alpha', alpha_cutoff)
+                # Read descriptor matrix
+                X_matrix = np.loadtxt(sparseX_filename)
+                assert X_matrix.shape[0] == n_sparseX*n_dim
+                # i-th row of X-matrix stores X-vector of config i
+                X_matrix = X_matrix.reshape((n_dim, n_sparseX))
+                self.Set('gpCoordinates.sparseX', X_matrix)
+
+        # 'GAP_params/XYZ_data'
+        key = 'XYZ_data'
+        if key in child_nodes:
+            node = child_nodes[key][0]
+            text = XmlGetText(node)
+            trj_file = 'lib-atoms-gap.from-xml.xyz'
+            ofs = open(trj_file, 'w')
+            for child in node.childNodes:
+                if child.nodeValue == None: continue
+                ln = child.nodeValue.strip(' \n')
+                if ln == '': continue
+                ofs.write(ln+'\n')
+            ofs.close()
+            self.trj = LibAtomsTrajectory(self.log)
+            self.trj.ParseOutput(trj_file)
+        return
+
 class LibAtomsTrajectory(LibAtomsParser):
     def __init__(self, log=None):
         super(LibAtomsTrajectory, self).__init__(log)
         self.ase_configs = None
         self.frames = []
+        self.logtag = 'trj'
     def ParseOutput(self, output_file):        
         if self.log: 
             self.log << self.log.mg << "libAtomsParser::ParseOutput ..." << self.log.endl
-        
         if HAVE_ASE:
             read_fct = ase.io.read
             read_fct_args = { 'index':':' }
@@ -156,11 +297,9 @@ class LibAtomsTrajectory(LibAtomsParser):
             raise NotImplementedError("None-ASE read function requested, but not yet available.")
             read_fct = None
             read_fct_args = None
-
         # PARSE CONFIGURATIONS
         self.ase_configs = read_fct(output_file, **read_fct_args)
         self.LoadAseConfigs(self.ase_configs)
-        
         self.Set('program_name', 'libAtoms')
         self.Set('program_version', 'n/a')
         return
@@ -169,7 +308,7 @@ class LibAtomsTrajectory(LibAtomsParser):
             frame = LibAtomsFrame(self.log)
             frame.LoadAseConfig(config)
             self.frames.append(frame)
-        if self.log: log << "Loaded %d configurations" % len(self.frames) << log.endl
+        if self.log: self.log << "Loaded %d configurations" % len(self.frames) << self.log.endl
         return
 
 class LibAtomsFrame(LibAtomsParser):

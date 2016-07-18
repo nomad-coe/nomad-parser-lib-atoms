@@ -425,7 +425,7 @@ class ShellInterface(object):
 		try:
 		    height, width = os.popen('stty size', 'r').read().split()
 		    width = int(width)
-		    leftright = ((width - len(title)-2) // 2
+		    leftright = ((width - len(title)-2)) // 2
 		except ValueError:
 		    leftright = 40
 		return trim*leftright + " " + title + " " + trim*leftright

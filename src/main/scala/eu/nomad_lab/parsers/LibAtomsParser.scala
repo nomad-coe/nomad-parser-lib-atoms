@@ -21,7 +21,7 @@ object LibAtomsParser extends SimpleExternalParserGenerator(
       )) :: Nil
   ),
   mainFileTypes = Seq("text/.*"),
-  mainFileRe = """ ll """.r,
+  mainFileRe = """\s*<GAP_params\s""".r,
   cmd = Seq(DefaultPythonInterpreter.pythonExe(), "${envDir}/parsers/lib-atoms/parser/parser-lib-atoms/libAtomsParser.py",
     "${mainFilePath}"),
   resList = Seq(
