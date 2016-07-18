@@ -176,8 +176,9 @@ class LibAtomsGapParser(LibAtomsParser):
         super(LibAtomsGapParser, self).__init__(log)
         self.logtag = 'gap-xml'
         self.trj = None
+        self.has_gap_data = False
         return
-    def ParseOutput(self, output_file):
+    def ParseOutput(self, output_file, base_dir=''):
         self.Set('program_name', 'libAtoms')
         dom = xml.dom.minidom.parse(output_file)
         root = XmlGetUnique(dom, 'GAP_params')
@@ -210,6 +211,7 @@ class LibAtomsGapParser(LibAtomsParser):
         # 'GAP_params/gpSparse'
         key = 'gpSparse'
         if key in child_nodes:
+            self.has_gap_data = True
             node = child_nodes[key][0]
             atts = XmlGetAttributes(node)
             keys = ['n_coordinate']
@@ -249,6 +251,7 @@ class LibAtomsGapParser(LibAtomsParser):
                 n_sparseX = self['gpCoordinates.n_sparseX'].As(int)
                 n_dim = self['gpCoordinates.dimensions'].As(int)
                 sparseX_filename = self['gpCoordinates.sparseX_filename'].As(str)
+                sparseX_filename = os.path.join(base_dir, sparseX_filename)
                 # Read alpha coefficients
                 nodes = gp_coord_child_nodes[key]
                 alpha_cutoff = np.zeros((n_sparseX, 2), dtype='float64')
@@ -315,8 +318,31 @@ class LibAtomsFrame(LibAtomsParser):
     def __init__(self, log=None):
         super(LibAtomsFrame, self).__init__(log)
         self.ase_config = None
+        self.has_energy = False
+        self.energy = None
+        self.has_virial = False
+        self.virial = None
+        self.has_config_type = False
+        self.config_type = None
     def LoadAseConfig(self, ase_config):
-        self.ase_atoms = ase_config
+        self.ase_config = ase_config
+        key = 'energy'
+        if key in self.ase_config.info:
+            has_energy = True
+            self.energy = self.ase_config.info[key]
+        key = 'config_type'
+        if key in self.ase_config.info:
+            self.has_config_type = True
+            self.config_type = self.ase_config.info[key]
+        key = 'virial'
+        if key in self.ase_config.info:
+            self.has_virial = True
+            self.virial = np.array(self.ase_config.info[key])
+
+
+
+
+
         return
 
 # ===================
