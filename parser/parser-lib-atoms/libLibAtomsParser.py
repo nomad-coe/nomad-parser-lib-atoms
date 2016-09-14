@@ -326,10 +326,14 @@ class LibAtomsFrame(LibAtomsParser):
         self.config_type = None
     def LoadAseConfig(self, ase_config):
         self.ase_config = ase_config
+        print("INFO", self.ase_config.info)
         key = 'energy'
         if key in self.ase_config.info:
-            has_energy = True
+            self.has_energy = True
             self.energy = self.ase_config.info[key]
+        else:
+            self.has_energy = True
+            self.energy = self.ase_config.get_total_energy()
         key = 'config_type'
         if key in self.ase_config.info:
             self.has_config_type = True
