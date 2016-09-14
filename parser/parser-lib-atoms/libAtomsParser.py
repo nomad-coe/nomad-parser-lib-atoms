@@ -125,6 +125,12 @@ def parse(output_file_name):
                 if frame.has_config_type:
                     push_value(jbe, frame.config_type, 'x_lib_atoms_config_type')
                 pass
+        
+        # FRAME SEQUENCE
+        with open_section(jbe, 'section_frame_sequence'):
+            push_value(jbe, len(all_frames), 'number_of_frames_in_sequence')
+            refs_config = np.array(refs_single_configuration)
+            push_array_values(jbe, refs_config, 'frame_sequence_local_frames_ref')
 
         # GAP DESCRIPTION
         if gap.has_gap_data:
