@@ -20,7 +20,7 @@ object LibAtomsParser extends SimpleExternalParserGenerator(
           }(breakOut): List[(String, jn.JString)])
       )) :: Nil
   ),
-  mainFileTypes = Seq("text/.*"),
+  mainFileTypes = Seq("application/xml"),
   mainFileRe = """\s*<GAP_params\s""".r,
   cmd = Seq(DefaultPythonInterpreter.pythonExe(), "${envDir}/parsers/lib-atoms/parser/parser-lib-atoms/libAtomsParser.py",
     "${mainFilePath}"),
