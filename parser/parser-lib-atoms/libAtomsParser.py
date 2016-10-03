@@ -77,6 +77,9 @@ def parse(output_file_name):
     gap = terminal_gap
     trj = terminal_trj
 
+    length_libatoms2nomad = 1e-10 # angstrom to meter
+    energy_libatoms2nomad = 1.60217662e-19
+
     with open_section(jbe, 'section_run') as gid_run:
         push(jbe, gap, 'program_name')
         push(jbe, gap, 'program_version', key2='GAP_params.svn_version')
@@ -90,13 +93,13 @@ def parse(output_file_name):
                 # Configuration core
                 atom_labels = np.array(frame.ase_config.get_chemical_symbols())
                 push_array_values(jbe, atom_labels, 'atom_labels')
-                push_array_values(jbe, frame.ase_config.get_positions(), 'atom_positions')
+                push_array_values(jbe, frame.ase_config.get_positions()*length_libatoms2nomad, 'atom_positions')
                 # CAREFUL, OBSERVE CELL CONVENTION: 1st index -> x,y,z, 2nd index -> a,b,c
                 # Hence use transpose here:
-                push_array_values(jbe, frame.ase_config.get_cell().T, 'simulation_cell')
+                push_array_values(jbe, frame.ase_config.get_cell().T*length_libatoms2nomad, 'simulation_cell')
                 push_array_values(jbe, frame.ase_config.get_pbc(), 'configuration_periodic_dimensions')
                 if frame.ase_config.has('velocities'):
-                    push_array_values(jbe, frame.ase_config.get_velocities(), 'atom_velocities')
+                    push_array_values(jbe, frame.ase_config.get_velocities()*length_libatoms2nomad, 'atom_velocities')
                 if frame.ase_config.has('forces'):
                     # TODO Wouldn't it be nicer if forces were added here?
                     pass
@@ -114,7 +117,7 @@ def parse(output_file_name):
                 push_value(jbe, ref_system, 'single_configuration_calculation_to_system_ref')
                 # Energy
                 if frame.has_energy:
-                    push_value(jbe, frame.energy, 'energy_total') # TODO Check units
+                    push_value(jbe, frame.energy*energy_libatoms2nomad, 'energy_total') # TODO Check units
                 # Virial
                 if frame.has_virial:
                     push_array_values(jbe, frame.virial, 'x_lib_atoms_virial_tensor')
