@@ -137,7 +137,8 @@ def parse(output_file_name):
                     push_array_values(jbe, frame.virial, 'x_lib_atoms_virial_tensor')
                 # Forces
                 if frame.ase_config.has('forces'):
-                    push_array_values(jbe, frame.ase_config.get_forces(), 'atom_forces')
+                    with open_section(jbe, 'section_atom_forces') as fId:
+                        push_array_values(jbe, frame.ase_config.get_forces(), 'atom_forces')
                 # Type label
                 if frame.has_config_type:
                     push_value(jbe, frame.config_type, 'x_lib_atoms_config_type')
@@ -147,24 +148,24 @@ def parse(output_file_name):
         with open_section(jbe, 'section_frame_sequence'):
             push_value(jbe, len(all_frames), 'number_of_frames_in_sequence')
             refs_config = np.array(refs_single_configuration)
-            push_array_values(jbe, refs_config, 'frame_sequence_local_frames_ref')
+            push_array_values(jbe, refs_config, 'frame_sequence_to_frames_ref')
 
         # GAP DESCRIPTION
         if gap.has_gap_data:
             with open_section(jbe, 'x_lib_atoms_section_gap') as gap_gid:
                 push_array_values(jbe, np.array(refs_single_configuration), 'x_lib_atoms_training_config_refs')
-                push_value(jbe, gap['GAP_params.label'].As(), 'x_lib_atoms_GAP_params_label')
-                push_value(jbe, gap['GAP_params.svn_version'].As(), 'x_lib_atoms_GAP_params_svn_version')
-                push_value(jbe, gap['GAP_data.do_core'].As(), 'x_lib_atoms_GAP_data_do_core')
-                push_value(jbe, gap['GAP_data.e0'].As(float), 'x_lib_atoms_GAP_data_e0')
+                push_value(jbe, gap['GAP_params.label'].As(), 'x_lib_atoms_gap_params_label')
+                push_value(jbe, gap['GAP_params.svn_version'].As(), 'x_lib_atoms_gap_params_svn_version')
+                push_value(jbe, gap['GAP_data.do_core'].As(), 'x_lib_atoms_gap_data_do_core')
+                push_value(jbe, gap['GAP_data.e0'].As(float), 'x_lib_atoms_gap_data_e0')
                 push_value(jbe, gap['command_line.command_line'].As(), 'x_lib_atoms_command_line_command_line')
-                push_value(jbe, gap['gpSparse.n_coordinate'].As(int), 'x_lib_atoms_gpSparse_n_coordinate')
+                push_value(jbe, gap['gpSparse.n_coordinate'].As(int), 'x_lib_atoms_gpsparse_n_coordinate')
                 types = [int,         int,          int,              str,          float,             float,         float,             str,     str,                float,   str,          int,                int ]
                 keys  = ['n_sparseX', 'dimensions', 'n_permutations', 'sparsified', 'signal_variance', 'signal_mean', 'covariance_type', 'label', 'sparseX_filename', 'theta', 'descriptor', 'perm.permutation', 'perm.i']
                 for i,key in enumerate(keys):
-                    push_value(jbe, gap['gpCoordinates.%s' % key].As(types[i]), 'x_lib_atoms_gpCoordinates_%s' % key.replace('.', '_'))
+                    push_value(jbe, gap['gpCoordinates.%s' % key].As(types[i]), 'x_lib_atoms_gpcoordinates_%s' % key.replace('.', '_').lower())
                 for key in ['alpha', 'sparseX']:
-                    push_array_values(jbe, gap['gpCoordinates.%s' % key].As(), 'x_lib_atoms_gpCoordinates_%s' % key.replace('.', '_'))
+                    push_array_values(jbe, gap['gpCoordinates.%s' % key].As(), 'x_lib_atoms_gpcoordinates_%s' % key.replace('.', '_').lower())
 
     jbe.finishedParsingSession("ParseSuccess", None)
     return
