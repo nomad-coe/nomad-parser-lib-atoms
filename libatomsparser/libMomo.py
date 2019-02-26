@@ -1,11 +1,11 @@
 # Copyright 2016-2018 Fawzi Mohamed, Carl Poelking, Daria Tomecka
-# 
+#
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -112,7 +112,7 @@ def NamespaceFromDict(tree_dict):
 				#print "NSPACE '%s' value added" % s
 				add_to_nspace.Add(s, v)
 	return nspace
-				
+
 
 class XmlTree(list):
 	def __init__(self, xmlfile, paths_rel_to=None):
@@ -134,7 +134,7 @@ class XmlNode(object):
 	def __init__(self, element, path):
 		self.path = path
 		self.node = element
-		self.tag = element.tag		
+		self.tag = element.tag
 		self.value = element.text
 		self.attributes = element.attrib
 	def As(self, typ):
@@ -220,14 +220,14 @@ class OptionsInterface(object):
 		except KeyError:
 			raise ValueError('CLIO does not know how to convert %s into a boolean.' % expr)
 	def InterpretAsNumpyArray(self, expr):
-		print("Interpret", expr)
+		# print("Interpret", expr)
 		array = [ float(e) for e in expr ]
 		array = np.array(array)
 		return array
 	def InterpretAsList(self, expr):
 		array = [ self.subtype(e) for e in expr ]
 		return array
-	def AddArg(self, name, typ=str, nickname=None, 
+	def AddArg(self, name, typ=str, nickname=None,
 			default=None, destination=None, help=None):
 		# Sort out <name> (e.g. --time) vs <destination> (e.g., time)
 		if '--' != name[0:2]:
@@ -270,7 +270,7 @@ class OptionsInterface(object):
 		else:
 			raise NotImplementedError("CLIO does not know how to generate type '%s'"\
 				 % typ)
-		self.cmd_ln_args.add_argument(nickname, name, 
+		self.cmd_ln_args.add_argument(nickname, name,
 				dest=dest,
 				action='store',
 				nargs=nargs,
@@ -294,13 +294,13 @@ class OptionsInterface(object):
 		return
 	def __getitem__(self, key):
 		try:
-			return self.xspace.__dict__[key]			
+			return self.xspace.__dict__[key]
 		except KeyError:
 			return self.cmd_ln_opts.__dict__[key]
 		except KeyError:
 			raise AttributeError('No such option registered: \'%s\'' % key)
 		return None
-		
+
 
 # =============================================================================
 # OS SHELL INTERFACE
@@ -315,7 +315,7 @@ class ShellInterface(object):
 			'mb' : '\033[34m',
 			'lb' : '\033[1;34m',
 			'my' : '\033[1;33m',
-			'mg' : '\033[92m',			
+			'mg' : '\033[92m',
 			'mr' : '\033[91m',
 			'ww' : '\033[0;1m',
 			'ok' : '\033[92m',
@@ -330,9 +330,9 @@ class ShellInterface(object):
 			'ro' : '\r  o '}
 		self.pp = OS_COLOR('pp')
 		self.lb = OS_COLOR('lb')
-		self.mb = OS_COLOR('mb')		
+		self.mb = OS_COLOR('mb')
 		self.mg = OS_COLOR('mg')
-		self.my = OS_COLOR('my')		
+		self.my = OS_COLOR('my')
 		self.mr = OS_COLOR('mr')
 		self.ww = OS_COLOR('ww')
 		self.ok = OS_COLOR('ok')
@@ -374,7 +374,7 @@ class ShellInterface(object):
 			mssg = self.color_dict[c] + mssg + self.color_dict['endcolor']
 		if h:
 			mssg = self.os_generate_header(mssg, t)
-		print(mssg)
+		# print(mssg)
 	# LOGFILE ADAPTOR =========================================================
 	def ConnectToFile(self, logfile):
 		self.logfile = logfile
@@ -419,7 +419,7 @@ class ShellInterface(object):
 			mssg = OS_COLOR_DICT[c] + mssg + OS_COLOR_DICT['endcolor']
 		if h:
 			mssg = os_generate_header(mssg, t)
-		print(mssg)
+		# print(mssg)
 		return
 	def os_print_config(self, c=None, j=None, h=False, t="=", tl=' '):
 		self.sel_color = c
@@ -465,7 +465,7 @@ class ShellInterface(object):
 		if self.debug: self << self.my << "exe:" << cmmd << endl
 		if self.os_exe_get:
 			output = subprocess.getoutput(cmmd)
-			self.os_exe_get = False		
+			self.os_exe_get = False
 			return output
 		else:
 			sign = os.system(cmmd)
@@ -528,7 +528,7 @@ class OS_EXE_DEV(object):
 class OS_EXE_CATCH(object):
 	def __init__(self):
 		self.catch = True
-		
+
 class OS_EXE_ASSERT(object):
 	def __init__(self):
 		self.assert_0 = True

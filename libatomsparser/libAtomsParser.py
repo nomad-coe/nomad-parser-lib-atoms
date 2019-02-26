@@ -1,11 +1,11 @@
 # Copyright 2016-2018 Fawzi Mohamed, Carl Poelking, Daria Tomecka
-# 
+#
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,15 +17,15 @@ import os
 import sys
 import re
 import json
-#import logging
-import setup_paths
+import logging
+# import setup_paths
 import numpy as np
 
 from nomadcore.local_meta_info import loadJsonFile, InfoKindEl
 from nomadcore.parser_backend import JsonParseEventsWriterBackend
 from contextlib import contextmanager
 
-from libLibAtomsParser import *
+from libatomsparser.libLibAtomsParser import *
 
 try:
     from libMomo import osio, endl, flush
@@ -36,16 +36,36 @@ except:
     green = None
 
 parser_info = {
-    "name": "parser-lib-atoms", 
+    "name": "parser-lib-atoms",
     "version": "0.0",
     "json": "../../../../nomad-meta-info/meta_info/nomad_meta_info/lib_atoms.nomadmetainfo.json"
 }
 
+
+class LibAtomsParserWrapper():
+    """ A proper class envolop for running this parser using Noamd-FAIRD infra. """
+    def __init__(self, backend, **kwargs):
+        self.backend_factory = backend
+
+    def parse(self, mainfile):
+        import nomad_meta_info
+        metaInfoPath = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(nomad_meta_info.__file__)), "lib_atoms.nomadmetainfo.json"))
+        metaInfoEnv, warnings = loadJsonFile(filePath = metaInfoPath, dependencyLoader = None, extraArgsHandling = InfoKindEl.ADD_EXTRA_ARGS, uri = None)
+        from unittest.mock import patch
+        logging.info('lib-atoms parser started')
+        logging.getLogger('nomadcore').setLevel(logging.WARNING)
+        backend = self.backend_factory(metaInfoEnv)
+        # Call the old parser without a class.
+        parserInfo = {'name': 'lib_atoms-parser', 'version': '0.0'}
+        backend = parse_without_class(mainfile, backend, parserInfo)
+        return backend
+
+
 # LOGGING
 def log(msg, highlight=None, enter=endl):
-    if osio:
-        if highlight==None: hightlight = osio.ww
-        osio << highlight << msg << enter
+    # if osio:
+    #     if highlight==None: hightlight = osio.ww
+    #     osio << highlight << msg << enter
     return
 
 # CONTEXT GUARD
@@ -53,7 +73,7 @@ def log(msg, highlight=None, enter=endl):
 def open_section(p, name):
     gid = p.openSection(name)
     yield gid
-    p.closeSection(name, gid)   
+    p.closeSection(name, gid)
 
 def push(jbe, terminal, key1, fct=lambda x: x.As(), key2=None):
     if key2 == None: key2 = key1
@@ -75,18 +95,23 @@ def push_array_values(jbe, value, key):
     jbe.addArrayValues(key, value)
     return value
 
-def parse(output_file_name):
-    jbe = JsonParseEventsWriterBackend(meta_info_env)
+def parse_without_class(output_file_name, backend, parser_info):
+    """ Parse method to parse mainfile and write output to backend."""
+    jbe = backend
     jbe.startedParsingSession(output_file_name, parser_info)
-
     base_dir = os.path.dirname(os.path.abspath(output_file_name))
+
+    # jbe = JsonParseEventsWriterBackend(meta_info_env)
+    # jbe.startedParsingSession(output_file_name, parser_info)
+
+    # base_dir = os.path.dirname(os.path.abspath(output_file_name))
     terminal_gap = LibAtomsGapParser(osio)
     terminal_gap.ParseOutput(output_file_name, base_dir)
     terminal_trj = terminal_gap.trj
 
 
-    osio << "Start parsing ..." << osio.endl
-    osio << "Base directory = '%s'" % base_dir << osio.endl
+    # osio << "Start parsing ..." << osio.endl
+    # osio << "Base directory = '%s'" % base_dir << osio.endl
 
     gap = terminal_gap
     trj = terminal_trj
@@ -142,7 +167,7 @@ def parse(output_file_name):
                 if frame.has_config_type:
                     push_value(jbe, frame.config_type, 'x_lib_atoms_config_type')
                 pass
-        
+
         # FRAME SEQUENCE
         with open_section(jbe, 'section_frame_sequence'):
             push_value(jbe, len(all_frames), 'number_of_frames_in_sequence')
@@ -167,7 +192,7 @@ def parse(output_file_name):
                     push_array_values(jbe, gap['gpCoordinates.%s' % key].As(), 'x_lib_atoms_gpCoordinates_%s' % key.replace('.', '_'))
 
     jbe.finishedParsingSession("ParseSuccess", None)
-    return
+    return jbe
 
 if __name__ == '__main__':
 

@@ -1,11 +1,11 @@
 # Copyright 2016-2018 Fawzi Mohamed, Carl Poelking, Daria Tomecka
-# 
+#
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -139,7 +139,7 @@ class LibAtomsParser(object):
                 x = sp[:-1]
                 y = sp[-1]
             key = ''
-            for i in range(len(x)-1):                
+            for i in range(len(x)-1):
                 xi = x[i].replace('(','').replace(')','').lower()
                 key += '%s_' % xi
             key += '%s' % x[-1].replace('(','').replace(')','').lower()
@@ -148,7 +148,7 @@ class LibAtomsParser(object):
         return block_data
     def ApplyBlockXyData(self, block_data, key_map):
         for key_in in key_map:
-            key_out = key_map[key_in]            
+            key_out = key_map[key_in]
             if key_in not in block_data:
                 # Missing key in output
                 self.missing_keys_lh.append(key_in)
@@ -164,10 +164,10 @@ class LibAtomsParser(object):
                 # Missing key in transform map
                 self.ignored_keys.append(key)
         return
-    def ParseOutput(self, output_file):        
-        if self.log: 
+    def ParseOutput(self, output_file):
+        if self.log:
             self.log << self.log.mg << "libAtomsParser::ParseOutput ..." << self.log.endl
-        
+
         if HAVE_ASE:
             read_fct = ase.io.read
             read_fct_args = { 'index':':' }
@@ -178,9 +178,9 @@ class LibAtomsParser(object):
 
         # PARSE CONFIGURATIONS
         self.ase_configs = read_fct(output_file, **read_fct_args)
-        for config in ase_configs:
-            print(config)
-        
+        # for config in ase_configs:
+        #     print(config)
+
         self.Set('program_name', 'libAtoms')
         self.Set('program_version', 'n/a')
         return
@@ -238,7 +238,7 @@ class LibAtomsGapParser(LibAtomsParser):
             gp_coord_node_att = XmlGetAttributes(gp_coord_node)
             for key in gp_coord_node_att.keys():
                 self.Set('gpCoordinates.%s' % key, gp_coord_node_att[key].value)
-            
+
             # 'GAP_params/gpSparse/gpCoordinates/theta
             key = 'theta'
             if key in gp_coord_child_nodes:
@@ -304,8 +304,8 @@ class LibAtomsTrajectory(LibAtomsParser):
         self.ase_configs = None
         self.frames = []
         self.logtag = 'trj'
-    def ParseOutput(self, output_file):        
-        if self.log: 
+    def ParseOutput(self, output_file):
+        if self.log:
             self.log << self.log.mg << "libAtomsParser::ParseOutput ..." << self.log.endl
         if HAVE_ASE:
             read_fct = ase.io.read
@@ -340,7 +340,7 @@ class LibAtomsFrame(LibAtomsParser):
         self.config_type = None
     def LoadAseConfig(self, ase_config):
         self.ase_config = ase_config
-        print("INFO", self.ase_config.info)
+        # print("INFO", self.ase_config.info)
         key = 'energy'
         if key in self.ase_config.info:
             self.has_energy = True
@@ -383,7 +383,7 @@ class FileStream(object):
                 break
         return ln
     def SkipToMatch(self, expr):
-        while True:            
+        while True:
             ln = self.ifs.readline()
             m = re.search(expr, ln)
             if m:
@@ -412,12 +412,12 @@ class FileStream(object):
                 # Block not started yet
                 pass
             if self.all_read(): break
-        return block_stream  
-    def GetBlockSequence(self, 
-            expr_start, 
-            expr_new, 
-            expr_end, 
-            remove_eol=True, 
+        return block_stream
+    def GetBlockSequence(self,
+            expr_start,
+            expr_new,
+            expr_end,
+            remove_eol=True,
             skip_empty=True):
         inside = False
         outside = False
@@ -442,7 +442,7 @@ class FileStream(object):
         while True:
             # Log line position
             last_pos = self.ifs.tell()
-            ln = self.ifs.readline()            
+            ln = self.ifs.readline()
             # Figure out where we are
             if not inside and expr_start in ln:
                 #print "Enter", expr_start
@@ -494,7 +494,7 @@ class FileStream(object):
         for i in range(n):
             self.ln()
         return
-    
+
 class BlockStream(FileStream):
     def __init__(self, label=None):
         super(BlockStream, self).__init__(None)
@@ -506,7 +506,7 @@ class BlockStream(FileStream):
         self.lns.append(ln)
     def readline(self):
         if self.all_read():
-            return ''        
+            return ''
         ln = self.lns[self.idx]
         self.idx += 1
         return ln
