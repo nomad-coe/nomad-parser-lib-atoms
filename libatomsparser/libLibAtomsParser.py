@@ -287,15 +287,15 @@ class LibAtomsGapParser(LibAtomsParser):
             node = child_nodes[key][0]
             text = XmlGetText(node)
             trj_file = 'lib-atoms-gap.from-xml.xyz'
-            ofs = open(trj_file, 'w')
-            for child in node.childNodes:
-                if child.nodeValue == None: continue
-                ln = child.nodeValue.strip(' \n')
-                if ln == '': continue
-                ofs.write(ln+'\n')
-            ofs.close()
+            # ofs = open(trj_file, 'w')
+            # for child in node.childNodes:
+            #     if child.nodeValue == None: continue
+            #     ln = child.nodeValue.strip(' \n')
+            #     if ln == '': continue
+                # ofs.write(ln+'\n')
+            # ofs.close()
             self.trj = LibAtomsTrajectory(self.log)
-            self.trj.ParseOutput(trj_file)
+            # self.trj.ParseOutput(trj_file)
         return
 
 class LibAtomsTrajectory(LibAtomsParser):
@@ -356,11 +356,6 @@ class LibAtomsFrame(LibAtomsParser):
         if key in self.ase_config.info:
             self.has_virial = True
             self.virial = np.array(self.ase_config.info[key])
-
-
-
-
-
         return
 
 # ===================

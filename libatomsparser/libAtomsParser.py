@@ -27,13 +27,13 @@ from contextlib import contextmanager
 
 from libatomsparser.libLibAtomsParser import *
 
-try:
-    from libMomo import osio, endl, flush
-    osio.ConnectToFile('parser.osio.log')
-    green = osio.mg
-except:
-    osio = endl = flush = None
-    green = None
+# try:
+#     from libMomo import osio, endl, flush
+#     osio.ConnectToFile('parser.osio.log')
+#     green = osio.mg
+# except:
+osio = endl = flush = None
+green = None
 
 parser_info = {
     "name": "parser-lib-atoms",
