@@ -23,6 +23,7 @@ import sys
 import re
 import numpy as np
 import xml.dom.minidom
+from nomad.utils import create_uuid
 
 try:
     import ase
@@ -197,7 +198,7 @@ class LibAtomsGapParser(LibAtomsParser):
         dom = xml.dom.minidom.parse(output_file)
         root = XmlGetUnique(dom, 'GAP_params')
         # Child keys should be: ['gpSparse', 'command_line', 'GAP_data', 'XYZ_data']
-        #print(list(child_nodes.keys()))
+        # print(list(child_nodes.keys()))
         child_nodes = XmlGetChildDict(root)
 
         # 'GAP_params'
@@ -286,16 +287,17 @@ class LibAtomsGapParser(LibAtomsParser):
         if key in child_nodes:
             node = child_nodes[key][0]
             text = XmlGetText(node)
-            trj_file = 'lib-atoms-gap.from-xml.xyz'
-            # ofs = open(trj_file, 'w')
-            # for child in node.childNodes:
-            #     if child.nodeValue == None: continue
-            #     ln = child.nodeValue.strip(' \n')
-            #     if ln == '': continue
-                # ofs.write(ln+'\n')
-            # ofs.close()
+            unique_ID = create_uuid()
+            trj_file = '/tmp/' + unique_ID + '-lib-atoms-gap.from-xml.xyz'
+            ofs = open(trj_file, 'w')
+            for child in node.childNodes:
+                if child.nodeValue == None: continue
+                ln = child.nodeValue.strip(' \n')
+                if ln == '': continue
+                ofs.write(ln+'\n')
+            ofs.close()
             self.trj = LibAtomsTrajectory(self.log)
-            # self.trj.ParseOutput(trj_file)
+            self.trj.ParseOutput(trj_file)
         return
 
 class LibAtomsTrajectory(LibAtomsParser):

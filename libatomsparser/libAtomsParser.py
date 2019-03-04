@@ -66,6 +66,7 @@ def log(msg, highlight=None, enter=endl):
     # if osio:
     #     if highlight==None: hightlight = osio.ww
     #     osio << highlight << msg << enter
+    logging.debug(msg)
     return
 
 # CONTEXT GUARD
@@ -109,8 +110,9 @@ def parse_without_class(output_file_name, backend, parser_info):
     terminal_gap.ParseOutput(output_file_name, base_dir)
     terminal_trj = terminal_gap.trj
 
-
+    logging.debug("Start parsing...")
     # osio << "Start parsing ..." << osio.endl
+    logging.debug('Base directory = %s' % base_dir)
     # osio << "Base directory = '%s'" % base_dir << osio.endl
 
     gap = terminal_gap
