@@ -22,7 +22,6 @@ import logging
 import numpy as np
 
 from nomadcore.local_meta_info import loadJsonFile, InfoKindEl
-from nomadcore.parser_backend import JsonParseEventsWriterBackend
 from contextlib import contextmanager
 
 from libatomsparser.libLibAtomsParser import *
@@ -48,13 +47,9 @@ class LibAtomsParserWrapper():
         self.backend_factory = backend
 
     def parse(self, mainfile):
-        import nomad_meta_info
-        metaInfoPath = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(nomad_meta_info.__file__)), "lib_atoms.nomadmetainfo.json"))
-        metaInfoEnv, warnings = loadJsonFile(filePath = metaInfoPath, dependencyLoader = None, extraArgsHandling = InfoKindEl.ADD_EXTRA_ARGS, uri = None)
-        from unittest.mock import patch
         logging.info('lib-atoms parser started')
         logging.getLogger('nomadcore').setLevel(logging.WARNING)
-        backend = self.backend_factory(metaInfoEnv)
+        backend = self.backend_factory("lib_atoms.nomadmetainfo.json")
         # Call the old parser without a class.
         parserInfo = {'name': 'lib_atoms-parser', 'version': '0.0'}
         backend = parse_without_class(mainfile, backend, parserInfo)
@@ -102,7 +97,6 @@ def parse_without_class(output_file_name, backend, parser_info):
     jbe.startedParsingSession(output_file_name, parser_info)
     base_dir = os.path.dirname(os.path.abspath(output_file_name))
 
-    # jbe = JsonParseEventsWriterBackend(meta_info_env)
     # jbe.startedParsingSession(output_file_name, parser_info)
 
     # base_dir = os.path.dirname(os.path.abspath(output_file_name))
