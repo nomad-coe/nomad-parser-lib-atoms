@@ -1,0 +1,7 @@
+codeLabel: libAtoms
+codeLabelStyle: 'Capitals: A'
+codeUrl: http://libatoms.github.io/
+parserDirName: dependencies/parsers/lib-atoms/
+parserGitUrl: https://gitlab.mpcdf.mpg.de/nomad-lab/parser-lib-atoms
+parserSpecific: ''
+tableOfFiles: ''
