@@ -36,14 +36,14 @@ def test_basic(parser):
 
     parser.parse('tests/data/gp.xml', archive, None)
 
-    sec_run = archive.section_run[0]
-    assert sec_run.program_version == 'svn_version="11610"'
+    sec_run = archive.run[0]
+    assert sec_run.program.version == 'svn_version="11610"'
 
-    sec_systems = archive.section_run[0].section_system
+    sec_systems = archive.run[0].system
     assert len(sec_systems) == 2000
-    assert sec_systems[20].atom_labels[0] == 'W'
-    assert sec_systems[1000].atom_positions[0][2].magnitude == 0.
+    assert sec_systems[20].atoms.labels[0] == 'W'
+    assert sec_systems[1000].atoms.positions[0][2].magnitude == 0.
 
-    sec_sccs = sec_run.section_single_configuration_calculation
+    sec_sccs = sec_run.calculation
     assert len(sec_sccs) == 2000
-    assert sec_sccs[30].energy_total.magnitude == approx(-1.77389589e-18)
+    assert sec_sccs[30].energy.total.value.magnitude == approx(-1.77389589e-18)

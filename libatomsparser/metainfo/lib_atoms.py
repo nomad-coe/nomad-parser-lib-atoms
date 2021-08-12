@@ -22,14 +22,7 @@ from nomad.metainfo import (  # pylint: disable=unused-import
     MSection, MCategory, Category, Package, Quantity, Section, SubSection, SectionProxy,
     Reference
 )
-from nomad.metainfo.legacy import LegacyDefinition
-
-from nomad.datamodel.metainfo import public
-
-m_package = Package(
-    name='lib_atoms_nomadmetainfo_json',
-    description='None',
-    a_legacy=LegacyDefinition(name='lib_atoms.nomadmetainfo.json'))
+from nomad.datamodel.metainfo import run
 
 
 class x_lib_atoms_section_gap(MSection):
@@ -37,198 +30,175 @@ class x_lib_atoms_section_gap(MSection):
     Description of Gaussian Approximation Potentials (GAPs).
     '''
 
-    m_def = Section(validate=False, a_legacy=LegacyDefinition(name='x_lib_atoms_section_gap'))
+    m_def = Section(validate=False)
 
     x_lib_atoms_training_config_refs = Quantity(
-        type=public.section_single_configuration_calculation,
+        type=run.calculation.Calculation,
         shape=['n_sparseX'],
         description='''
         References to frames in training configuration.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_training_config_refs'))
+        ''')
 
     x_lib_atoms_GAP_params_label = Quantity(
         type=str,
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_GAP_params_label'))
+        ''')
 
     x_lib_atoms_GAP_params_svn_version = Quantity(
         type=str,
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_GAP_params_svn_version'))
+        ''')
 
     x_lib_atoms_GAP_data_do_core = Quantity(
         type=str,
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_GAP_data_do_core'))
+        ''')
 
     x_lib_atoms_GAP_data_e0 = Quantity(
         type=np.dtype(np.float64),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_GAP_data_e0'))
+        ''')
 
     x_lib_atoms_command_line_command_line = Quantity(
         type=str,
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_command_line_command_line'))
+        ''')
 
     x_lib_atoms_gpSparse_n_coordinate = Quantity(
         type=np.dtype(np.int32),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpSparse_n_coordinate'))
+        ''')
 
     x_lib_atoms_gpCoordinates_n_permutations = Quantity(
         type=np.dtype(np.int32),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_n_permutations'))
+        ''')
 
     x_lib_atoms_gpCoordinates_sparsified = Quantity(
         type=str,
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_sparsified'))
+        ''')
 
     x_lib_atoms_gpCoordinates_signal_variance = Quantity(
         type=np.dtype(np.float64),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_signal_variance'))
+        ''')
 
     x_lib_atoms_gpCoordinates_label = Quantity(
         type=str,
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_label'))
+        ''')
 
     x_lib_atoms_gpCoordinates_n_sparseX = Quantity(
         type=np.dtype(np.int32),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_n_sparseX'))
+        ''')
 
     x_lib_atoms_gpCoordinates_covariance_type = Quantity(
         type=np.dtype(np.int32),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_covariance_type'))
+        ''')
 
     x_lib_atoms_gpCoordinates_signal_mean = Quantity(
         type=np.dtype(np.float64),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_signal_mean'))
+        ''')
 
     x_lib_atoms_gpCoordinates_sparseX_filename = Quantity(
         type=str,
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_sparseX_filename'))
+        ''')
 
     x_lib_atoms_gpCoordinates_dimensions = Quantity(
         type=np.dtype(np.int32),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_dimensions'))
+        ''')
 
     x_lib_atoms_gpCoordinates_theta = Quantity(
         type=np.dtype(np.float64),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_theta'))
+        ''')
 
     x_lib_atoms_gpCoordinates_descriptor = Quantity(
         type=str,
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_descriptor'))
+        ''')
 
     x_lib_atoms_gpCoordinates_perm_permutation = Quantity(
         type=np.dtype(np.int32),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_perm_permutation'))
+        ''')
 
     x_lib_atoms_gpCoordinates_perm_i = Quantity(
         type=np.dtype(np.int32),
         shape=[],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_perm_i'))
+        ''')
 
     x_lib_atoms_gpCoordinates_alpha = Quantity(
         type=np.dtype(np.float64),
         shape=['n_sparseX', 2],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_alpha'))
+        ''')
 
     x_lib_atoms_gpCoordinates_sparseX = Quantity(
         type=np.dtype(np.float64),
         shape=['n_sparseX', 'dimensions'],
         description='''
         GAP classifier.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_gpCoordinates_sparseX'))
+        ''')
 
 
-class section_run(public.section_run):
+class Run(run.run.Run):
 
-    m_def = Section(validate=False, extends_base_section=True, a_legacy=LegacyDefinition(name='section_run'))
+    m_def = Section(validate=False, extends_base_section=True)
 
     x_lib_atoms_section_gap = SubSection(
         sub_section=SectionProxy('x_lib_atoms_section_gap'),
-        repeats=False,
-        a_legacy=LegacyDefinition(name='x_lib_atoms_section_gap'))
+        repeats=False)
 
 
-class section_single_configuration_calculation(public.section_single_configuration_calculation):
+class Calculation(run.calculation.Calculation):
 
-    m_def = Section(validate=False, extends_base_section=True, a_legacy=LegacyDefinition(name='section_single_configuration_calculation'))
+    m_def = Section(validate=False, extends_base_section=True)
 
     x_lib_atoms_virial_tensor = Quantity(
         type=np.dtype(np.float64),
@@ -236,16 +206,11 @@ class section_single_configuration_calculation(public.section_single_configurati
         unit='pascal',
         description='''
         Virial tensor for this frame.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_virial_tensor'))
+        ''')
 
     x_lib_atoms_config_type = Quantity(
         type=str,
         shape=[],
         description='''
         Configuration type, e.g. = dislocation_quadrupole.
-        ''',
-        a_legacy=LegacyDefinition(name='x_lib_atoms_config_type'))
-
-
-m_package.__init_metainfo__()
+        ''')
