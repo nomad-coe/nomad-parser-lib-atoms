@@ -16,4 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import libatomsparser.metainfo.lib_atoms
+from nomad.metainfo import Environment
+
+from . import lib_atoms
+
+m_env = Environment()
+m_env.m_add_sub_section(Environment.packages, lib_atoms.m_package)
