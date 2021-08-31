@@ -22,7 +22,7 @@ from nomad.metainfo import (  # pylint: disable=unused-import
     MSection, MCategory, Category, Package, Quantity, Section, SubSection, SectionProxy,
     Reference
 )
-from nomad.datamodel.metainfo import run
+from nomad.datamodel.metainfo import simulation
 
 
 m_package = Package()
@@ -36,7 +36,7 @@ class x_lib_atoms_section_gap(MSection):
     m_def = Section(validate=False)
 
     x_lib_atoms_training_config_refs = Quantity(
-        type=run.calculation.Calculation,
+        type=simulation.calculation.Calculation,
         shape=['n_sparseX'],
         description='''
         References to frames in training configuration.
@@ -190,7 +190,7 @@ class x_lib_atoms_section_gap(MSection):
         ''')
 
 
-class Run(run.run.Run):
+class Run(simulation.run.Run):
 
     m_def = Section(validate=False, extends_base_section=True)
 
@@ -199,7 +199,7 @@ class Run(run.run.Run):
         repeats=False)
 
 
-class Calculation(run.calculation.Calculation):
+class Calculation(simulation.calculation.Calculation):
 
     m_def = Section(validate=False, extends_base_section=True)
 
